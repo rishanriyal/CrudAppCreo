@@ -14,17 +14,22 @@ namespace CrudAppCreo.Controllers
         }
         public IActionResult Index()
         {
-            IEnumerable<Employee> employees = _uow.EmployeeRepository.GetAllEmployees();
+            IEnumerable<Employee> employees = _uow.EmployeeRepository.GetAll();
             return View(employees);
         }
 
         public IActionResult Delete(int id)
         {
-            _uow.EmployeeRepository.DeleteEmployee(id);
+            _uow.EmployeeRepository.DeleteEmployeeById(id);
             _uow.Save();
 
             return View();
         }
+
+        //public IActionResult Edit(Employee employee)
+        //{
+
+        //}
 
     }
 }

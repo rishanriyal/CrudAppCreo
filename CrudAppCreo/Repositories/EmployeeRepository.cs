@@ -2,20 +2,19 @@
 
 namespace CrudAppCreo.Repositories
 {
-    public interface IEmployeeRepository
+    public interface IEmployeeRepository : IGenericRepository<Employee>
     {
-        public IEnumerable<Employee> GetAllEmployees();
-        public void DeleteEmployee(int employeeId);
+        public void DeleteEmployeeById(int employeeId);
     }
-    public class EmployeeRepository : IEmployeeRepository
+    public class EmployeeRepository : GenericRepository<Employee>, IEmployeeRepository
     {
         CrudAppCreoDbContext _dbContext;
 
-        public EmployeeRepository(CrudAppCreoDbContext dbContext)
+        public EmployeeRepository(CrudAppCreoDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
-        public void DeleteEmployee(int employeeId)
+        public void DeleteEmployeeById(int employeeId)
         {
             Employee employee = _dbContext.Employees.FirstOrDefault(x => x.EmployeeId == employeeId);
 
@@ -25,9 +24,5 @@ namespace CrudAppCreo.Repositories
             }
         }
 
-        public IEnumerable<Employee> GetAllEmployees()
-        {
-            return _dbContext.Employees.Select(s => s).ToList();
-        }
     }
 }
