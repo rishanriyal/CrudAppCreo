@@ -1,4 +1,5 @@
 using CrudAppCreo.Models;
+using CrudAppCreo.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<CrudAppCreoDbContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("dbconn"));
 });
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 var app = builder.Build();
