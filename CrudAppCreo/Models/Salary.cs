@@ -11,7 +11,7 @@ namespace CrudAppCreo.Models
         public decimal Tax { get; set; }
         public decimal NetSalary { get; set; }
 
-        public Employee Employee { get; set; } //Reference Navigation
+        public virtual Employee? Employee { get; set; } //Reference Navigation
         public int EmployeeId { get; set; } //Foreign key
 
 

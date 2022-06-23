@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CrudAppCreo.Models
+﻿namespace CrudAppCreo.Models.ViewModels
 {
-    public class Employee
+    public class EmployeeSalaryViewModel
     {
-        [Key]
         public int EmployeeId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -13,7 +10,7 @@ namespace CrudAppCreo.Models
         public string Email { get; set; }
         public string Address { get; set; }
         public string Designation { get; set; }
-        public virtual Salary Salary { get; set; } //Reference navigation
+        public decimal NetSalary { get; set; }
 
     }
 }

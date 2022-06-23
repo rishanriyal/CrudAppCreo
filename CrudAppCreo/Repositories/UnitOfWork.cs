@@ -5,6 +5,7 @@ namespace CrudAppCreo.Repositories
     public interface IUnitOfWork
     {
         IEmployeeRepository EmployeeRepository { get; }
+        ISalaryRepository SalaryRepository { get; }  
         void Save();
         void Dispose();
 
@@ -14,7 +15,7 @@ namespace CrudAppCreo.Repositories
         public readonly CrudAppCreoDbContext _dbContext;
 
         private IEmployeeRepository _EmployeeRepository;
-
+        private ISalaryRepository _SalaryRepository;
         public UnitOfWork(CrudAppCreoDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -23,6 +24,11 @@ namespace CrudAppCreo.Repositories
         public IEmployeeRepository EmployeeRepository
         {
             get { return _EmployeeRepository = _EmployeeRepository ?? new EmployeeRepository(_dbContext); }
+        }
+
+        public ISalaryRepository SalaryRepository
+        {
+            get { return _SalaryRepository = _SalaryRepository ?? new SalaryRepository(_dbContext); }
         }
 
         private bool disposed = false;

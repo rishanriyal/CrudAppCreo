@@ -1,10 +1,17 @@
-﻿namespace CrudAppCreo.Repositories
+﻿using CrudAppCreo.Models;
+
+namespace CrudAppCreo.Repositories
 {
-    public interface IInterface
+    public interface ISalaryRepository : IGenericRepository<Salary>
     {
 
     }
-    public class SalaryRepository
+    public class SalaryRepository : GenericRepository<Salary>, ISalaryRepository
     {
+        CrudAppCreoDbContext _dbContext;
+        public SalaryRepository(CrudAppCreoDbContext dbContext) : base(dbContext)
+        {
+            _dbContext = dbContext;
+        }
     }
 }
