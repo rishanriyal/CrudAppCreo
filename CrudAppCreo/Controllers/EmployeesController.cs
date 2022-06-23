@@ -23,10 +23,47 @@ namespace CrudAppCreo.Controllers
         }
 
         // GET: Employees
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
             IEnumerable<EmployeeSalaryViewModel> employees = _uow.EmployeeRepository.GetEmployeeDetailsWithSalary();
-            
+
+            //Sorting will be done for Salary, DOB and First Name
+            ViewData["firstNameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["dobSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["salarySort"] = sortOrder == "Salary" ? "salary_desc" : "Salary";
+
+            //Search by FirstName, LastName or Designation
+            ViewData["CurrentFilter"] = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                employees = employees.Where(s => s.FirstName.ToUpper().Contains(searchString.ToUpper())
+                                              || s.LastName.ToUpper().Contains(searchString.ToUpper())
+                                              || s.Designation.ToUpper().Contains(searchString.ToUpper()));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    employees = employees.OrderByDescending(s => s.FirstName);
+                    break;
+                case "Date":
+                    employees = employees.OrderBy(s => s.DateOfBirth);
+                    break;
+                case "date_desc":
+                    employees = employees.OrderByDescending(s => s.DateOfBirth);
+                    break;
+                case "Salary":
+                    employees = employees.OrderBy(s => s.NetSalary);
+                    break;
+                case "salary_desc":
+                    employees = employees.OrderByDescending(s => s.NetSalary);
+                    break;
+                default:
+                    employees = employees.OrderBy(s => s.FirstName);
+                    break;
+            }
+        
             return employees != null ? View(employees) : Problem("Table set 'Employees' is null.");
         }
 
@@ -161,5 +198,10 @@ namespace CrudAppCreo.Controllers
             var employee = _uow.EmployeeRepository.FindById(id);
             return employee == null ? false : true;
         }
+
+        //public async Task<IActionResult> Search()
+        //{
+
+        //}
     }
 }
