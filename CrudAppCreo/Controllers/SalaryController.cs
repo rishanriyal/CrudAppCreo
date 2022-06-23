@@ -23,7 +23,7 @@ namespace CrudAppCreo.Controllers
         public async Task<IActionResult> Index()
         {
             var salaries = _uow.SalaryRepository.GetAll();
-            return View(salaries);
+            return salaries != null ? View(salaries) : Problem("Table set 'Salaries' is null.");
         }
 
         // GET: Salary/Details/5
@@ -167,8 +167,8 @@ namespace CrudAppCreo.Controllers
 
         private bool SalaryExists(int id)
         {
-            var employee = _uow.SalaryRepository.FindById(id);
-            return employee == null ? false : true;
+            var salary = _uow.SalaryRepository.FindById(id);
+            return salary == null ? false : true;
         }
     }
 }

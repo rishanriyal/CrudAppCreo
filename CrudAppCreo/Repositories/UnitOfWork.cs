@@ -7,6 +7,7 @@ namespace CrudAppCreo.Repositories
         IEmployeeRepository EmployeeRepository { get; }
         ISalaryRepository SalaryRepository { get; }  
         void Save();
+        Task<bool> SaveAsync();
         void Dispose();
 
     }
@@ -43,7 +44,19 @@ namespace CrudAppCreo.Repositories
             {
                 throw;
             }
+        }
 
+        public async Task<bool> SaveAsync()
+        {
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         ~UnitOfWork()

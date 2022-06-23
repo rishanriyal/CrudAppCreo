@@ -6,36 +6,39 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CrudAppCreo.Models;
+using CrudAppCreo.Repositories;
+using CrudAppCreo.Models.ViewModels;
 
 namespace CrudAppCreo.Controllers
 {
     public class EmployeesController : Controller
     {
         private readonly CrudAppCreoDbContext _context;
+        IUnitOfWork _uow;
 
-        public EmployeesController(CrudAppCreoDbContext context)
+        public EmployeesController(IUnitOfWork uow, CrudAppCreoDbContext context)
         {
             _context = context;
+            _uow = uow;
         }
 
         // GET: Employees
         public async Task<IActionResult> Index()
         {
-              return _context.Employees != null ? 
-                          View(await _context.Employees.ToListAsync()) :
-                          Problem("Entity set 'CrudAppCreoDbContext.Employees'  is null.");
+            IEnumerable<EmployeeSalaryViewModel> employees = _uow.EmployeeRepository.GetEmployeeDetailsWithSalary();
+            
+            return employees != null ? View(employees) : Problem("Table set 'Employees' is null.");
         }
 
         // GET: Employees/Details/{id}
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Employees == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+            var employee = _uow.EmployeeRepository.FindById(id.Value);
             if (employee == null)
             {
                 return NotFound();
@@ -51,7 +54,6 @@ namespace CrudAppCreo.Controllers
         }
 
         // POST: Employees/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -59,11 +61,13 @@ namespace CrudAppCreo.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(employee);
-                await _context.SaveChangesAsync();
+                _uow.EmployeeRepository.Add(employee);
+                await _uow.SaveAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(employee);
+
+            IEnumerable<EmployeeSalaryViewModel> employees = _uow.EmployeeRepository.GetEmployeeDetailsWithSalary();
+            return View(employees);
         }
 
         // GET: Employees/Edit/5
@@ -74,7 +78,7 @@ namespace CrudAppCreo.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees.FindAsync(id);
+            var employee = _uow.EmployeeRepository.FindById(id.Value);
             if (employee == null)
             {
                 return NotFound();
@@ -83,8 +87,6 @@ namespace CrudAppCreo.Controllers
         }
 
         // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,FirstName,LastName,DateOfBirth,Mobile,Email,Address,Designation")] Employee employee)
@@ -98,8 +100,8 @@ namespace CrudAppCreo.Controllers
             {
                 try
                 {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
+                    _uow.EmployeeRepository.Update(employee);
+                    await _uow.SaveAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -120,13 +122,12 @@ namespace CrudAppCreo.Controllers
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Employees == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+            var employee = _uow.EmployeeRepository.FindById(id.Value);
             if (employee == null)
             {
                 return NotFound();
@@ -140,23 +141,25 @@ namespace CrudAppCreo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Employees == null)
+            var employees = _uow.EmployeeRepository.GetAll();
+            if (employees == null)
             {
-                return Problem("Entity set 'CrudAppCreoDbContext.Employees'  is null.");
+                return Problem("Entity set 'Employees'  is null.");
             }
-            var employee = await _context.Employees.FindAsync(id);
+            var employee = _uow.EmployeeRepository.FindById(id);
             if (employee != null)
             {
-                _context.Employees.Remove(employee);
+                _uow.EmployeeRepository.Remove(employee);
             }
             
-            await _context.SaveChangesAsync();
+            await _uow.SaveAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool EmployeeExists(int id)
         {
-          return (_context.Employees?.Any(e => e.EmployeeId == id)).GetValueOrDefault();
+            var employee = _uow.EmployeeRepository.FindById(id);
+            return employee == null ? false : true;
         }
     }
 }

@@ -29,7 +29,8 @@ namespace CrudAppCreo.Repositories
         public IEnumerable<EmployeeSalaryViewModel> GetEmployeeDetailsWithSalary()
         {
             var objQuery = (from emp in _dbContext.Set<Employee>()
-                            join sal in _dbContext.Set<Salary>() on emp.EmployeeId equals sal.EmployeeId
+                            join sal in _dbContext.Set<Salary>() on emp.EmployeeId equals sal.EmployeeId into empog
+                            from ep in empog.DefaultIfEmpty()
                             select new EmployeeSalaryViewModel
                             {
                                 EmployeeId = emp.EmployeeId,
@@ -40,7 +41,7 @@ namespace CrudAppCreo.Repositories
                                 Mobile = emp.Mobile,
                                 Email = emp.Email,
                                 Address = emp.Address,
-                                NetSalary = sal.NetSalary
+                                NetSalary = ep.NetSalary == null ? 0 : ep.NetSalary
                             }).ToList();
 
            return objQuery;
